@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Election Schedule</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+    <%- include("includes/flash") %>
+
+    <div class="max-w-2xl mx-auto px-6 py-12">
+
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-2">Voting Window</p>
+        <h1 class="font-display text-4xl font-semibold text-navy mb-2">Election schedule</h1>
+        <p class="text-subink mb-8">
+            Set when voting opens and closes. Students can only vote inside this window, and results stay hidden
+            from them until it ends.
+        </p>
+
+        <div class="bg-panel border border-hairline rounded-xl shadow-sm p-8">
+
+            <div class="mb-6 p-4 rounded-lg border
+                <% if(electionStatus==='live'){ %> bg-sash-50 text-sash-600 border-sash-600/30
+                <% } else if(electionStatus==='upcoming'){ %> bg-amber-50 text-amber-700 border-amber-600/30
+                <% } else if(electionStatus==='closed'){ %> bg-gray-100 text-subink border-hairline
+                <% } else { %> bg-navy-50 text-navy border-navy/20
+                <% } %>">
+                <strong>Current status:</strong>
+                <% if(electionStatus==='live'){ %> Voting is live right now
+                <% } else if(electionStatus==='upcoming'){ %> Voting hasn't started yet
+                <% } else if(electionStatus==='closed'){ %> Voting has closed
+                <% } else { %> No schedule set — voting is always open and results are always visible
+                <% } %>
+            </div>
+
+            <form action="/admin/election" method="POST" class="space-y-5">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-ink">Election title</label>
+                    <input type="text" name="title" value="<%= election.title %>"
+                        class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-ink">Voting starts</label>
+                    <input type="datetime-local" name="votingStart"
+                        value="<%= election.votingStart ? election.votingStart.toISOString().slice(0,16) : '' %>"
+                        required class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-ink">Voting ends</label>
+                    <input type="datetime-local" name="votingEnd"
+                        value="<%= election.votingEnd ? election.votingEnd.toISOString().slice(0,16) : '' %>"
+                        required class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                </div>
+
+                <button
+                    class="w-full bg-navy text-white py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">
+                    Save schedule
+                </button>
+            </form>
+
+            <form action="/admin/election/clear" method="POST" class="mt-4">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button onclick="return confirm('Clear the schedule? Voting will stay open with no time limit until you set a new one.')"
+                    class="w-full bg-panel border border-hairline text-ink py-3 rounded-lg hover:border-navy hover:text-navy transition font-semibold">
+                    Clear schedule
+                </button>
+            </form>
+
+        </div>
+
+        <!-- RESULT DECLARATION -->
+        <div class="bg-panel border border-hairline rounded-xl shadow-sm p-8 mt-8">
+            <h2 class="font-display text-2xl font-semibold text-navy mb-3">Result declaration</h2>
+            <p class="text-subink mb-6">
+                By default, results become public to students automatically once voting closes.
+                Use this to publish results early, or to hold them back even after closing (e.g. while you
+                double-check the count before announcing).
+            </p>
+
+            <div class="mb-6 p-4 rounded-lg <%= election.resultsDeclared ? 'bg-amber-50 text-amber-700 border border-amber-600/30' : 'bg-gray-100 text-subink border border-hairline' %>">
+                <strong>Current status:</strong>
+                <% if(election.resultsDeclared){ %>
+                    Results are declared and publicly visible
+                    (since <%= election.resultsDeclaredAt ? election.resultsDeclaredAt.toLocaleString() : "" %>)
+                <% } else { %>
+                    Not yet declared — visible automatically once voting closes, per the schedule above
+                <% } %>
+            </div>
+
+            <div class="flex gap-4">
+                <form action="/admin/election/declare-results" method="POST" class="flex-1">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="action" value="declare">
+                    <button
+                        class="w-full bg-seal text-white py-3 rounded-lg hover:bg-seal-700 transition font-semibold shadow-sm">
+                        Declare results now
+                    </button>
+                </form>
+                <form action="/admin/election/declare-results" method="POST" class="flex-1">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="action" value="undeclare">
+                    <button
+                        class="w-full bg-panel border border-hairline text-ink py-3 rounded-lg hover:border-navy hover:text-navy transition font-semibold">
+                        Unpublish
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

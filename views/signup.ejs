@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Signup</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+        <%- include("includes/flash") %>
+
+        <div class="flex justify-center items-center py-12 px-4">
+
+            <div class="bg-panel w-full max-w-md rounded-2xl border border-hairline shadow-xl overflow-hidden">
+
+                <!-- TITLE -->
+                <div class="pattern-dots bg-navy-900 text-center py-8 px-8">
+
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-seal text-white font-mono text-sm mb-4">SV</span>
+
+                    <p class="font-mono text-xs uppercase tracking-[0.25em] text-white/50 mb-2">New Voter</p>
+
+                    <h1 class="font-display text-3xl font-semibold text-white mb-1">
+
+                        Create account
+
+                    </h1>
+
+                    <p class="text-white/60 text-sm">
+
+                        Join the Student Voting System
+
+                    </p>
+
+                </div>
+
+                <!-- FORM -->
+                <form action="/signup" method="POST" class="space-y-5 p-8">
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                    <!-- USERNAME -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Username
+
+                        </label>
+
+                        <input type="text" name="username" placeholder="Enter username" required
+                            class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Email
+
+                        </label>
+
+                        <input type="email" name="email" placeholder="Enter email" required
+                            class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- ROLL NUMBER -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Roll Number
+
+                        </label>
+
+                        <input type="text" name="rollNumber" placeholder="Enter your roll number" required
+                            class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                        <p class="text-xs text-subink mt-1">Must match a roll number the election admin has
+                            pre-approved. Each roll number can only be used once.</p>
+
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Password
+
+                        </label>
+
+                        <input type="password" name="password" placeholder="Enter password" required
+                            class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button
+                        class="btn-lift w-full bg-navy text-white py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">
+
+                        Signup
+
+                    </button>
+
+                </form>
+
+                <div class="px-8 pb-8">
+                <%- include("includes/password-toggle") %>
+
+                <!-- LOGIN LINK -->
+                <p class="text-center mt-6 text-subink text-sm">
+
+                    Already have an account?
+
+                    <a href="/login" class="text-navy font-semibold hover:underline">
+
+                        Login
+
+                    </a>
+
+                </p>
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Verify Email</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+    <%- include("includes/flash") %>
+
+    <div class="flex justify-center items-center py-16 px-4">
+        <div class="bg-panel w-full max-w-md rounded-2xl border border-hairline shadow-sm p-8">
+
+            <div class="text-center mb-8">
+                <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-2">Account Activation</p>
+                <h1 class="font-display text-3xl font-semibold text-navy mb-2">Verify your email</h1>
+                <p class="text-subink text-sm">
+                    We sent a 6-digit code to
+                    <span class="font-semibold text-ink"><%= email %></span>.
+                    Enter it below to activate your account.
+                </p>
+            </div>
+
+            <form action="/verify-email" method="POST" class="space-y-5">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="email" value="<%= email %>">
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-ink">Verification code</label>
+                    <input type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                        placeholder="6-digit code" required autofocus
+                        class="w-full border border-hairline rounded-lg px-4 py-3 text-center text-2xl tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                </div>
+
+                <button
+                    class="w-full bg-navy text-white py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">
+                    Verify
+                </button>
+            </form>
+
+            <form action="/verify-email/resend" method="POST" class="mt-4">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="email" value="<%= email %>">
+                <button
+                    class="w-full bg-panel border border-hairline text-navy py-2.5 rounded-lg hover:bg-navy-50 transition font-semibold">
+                    Resend code
+                </button>
+            </form>
+
+            <p class="text-center mt-6 text-sm text-subink">
+                Wrong email? <a href="/signup" class="text-navy font-semibold hover:underline">Sign up again</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+
+</html>

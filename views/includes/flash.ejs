@@ -1,0 +1,19 @@
+<% if(typeof success !=="undefined" && success.length> 0) { %>
+
+    <div class="fixed top-5 right-5 z-50">
+        <div class="bg-panel border border-sash-600/30 text-sash-600 px-5 py-4 rounded-lg shadow-lg text-sm font-medium max-w-sm">
+            <%= success %>
+        </div>
+    </div>
+
+    <% } %>
+
+        <% if(typeof error !=="undefined" && error.length> 0) { %>
+
+            <div class="fixed top-5 right-5 z-50">
+                <div class="bg-panel border border-seal/30 text-seal-700 px-5 py-4 rounded-lg shadow-lg text-sm font-medium max-w-sm">
+                    <%= error %>
+                </div>
+            </div>
+
+            <% } %>

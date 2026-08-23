@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Eligible Voters</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+    <%- include("includes/flash") %>
+
+    <div class="max-w-4xl mx-auto px-6 py-12">
+
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-2">Voter Roll</p>
+        <h1 class="font-display text-4xl font-semibold text-navy mb-2">Eligible voters</h1>
+        <p class="text-subink mb-8">
+            Only students whose roll number appears here can create an account, and each roll number can only be
+            used once — this is what stops fake accounts from voting multiple times.
+        </p>
+
+        <div class="bg-panel border border-hairline rounded-xl shadow-sm p-8 mb-10">
+            <h2 class="font-display text-2xl font-semibold text-navy mb-4">Add roll numbers</h2>
+            <form action="/admin/voters" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <textarea name="rollNumbers" rows="4" placeholder="e.g. 2023CS001, 2023CS002&#10;2023CS003"
+                    class="w-full border border-hairline rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy"></textarea>
+                <p class="text-xs text-subink mb-4">Separate roll numbers with commas, spaces, or new lines.</p>
+                <button
+                    class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">
+                    Add to eligible list
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-panel border border-hairline rounded-xl shadow-sm p-8">
+            <h2 class="font-display text-2xl font-semibold text-navy mb-6">
+                All roll numbers (<%= voters.length %> total, <%= usedCount %> registered)
+            </h2>
+
+            <% if(voters.length===0){ %>
+                <p class="text-subink">No roll numbers added yet. Add some above so students can sign up.</p>
+            <% } else { %>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-hairline">
+                                <th class="py-2 pr-4 font-mono text-xs uppercase tracking-wide text-subink">Roll number</th>
+                                <th class="py-2 pr-4 font-mono text-xs uppercase tracking-wide text-subink">Status</th>
+                                <th class="py-2 pr-4"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% voters.forEach((v) => { %>
+                                <tr class="border-b border-hairline">
+                                    <td class="py-2 pr-4 font-mono text-sm"><%= v.rollNumber %></td>
+                                    <td class="py-2 pr-4">
+                                        <% if(v.used){ %>
+                                            <span class="bg-sash-50 text-sash-600 border border-sash-600/30 px-3 py-1 rounded-full text-xs font-semibold">Registered</span>
+                                        <% } else { %>
+                                            <span class="bg-gray-100 text-subink border border-hairline px-3 py-1 rounded-full text-xs font-semibold">Not used</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-2 pr-4">
+                                        <% if(!v.used){ %>
+                                            <form action="/admin/voters/<%= v._id %>?_method=DELETE" method="POST"
+                                                onsubmit="return confirm('Remove this roll number?')">
+                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                <button class="text-seal hover:underline text-sm font-medium">Remove</button>
+                                            </form>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

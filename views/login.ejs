@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Login</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+
+        <div class="flex justify-center items-center py-10 px-4">
+
+            <div class="w-full max-w-3xl rounded-2xl overflow-hidden shadow-xl grid grid-cols-1 md:grid-cols-2 border border-hairline">
+
+                <!-- INFO PANEL -->
+                <div class="pattern-dots bg-navy-900 text-white p-10 hidden md:flex flex-col justify-center">
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-seal text-white font-mono text-sm mb-6">SV</span>
+                    <p class="font-mono text-xs uppercase tracking-[0.25em] text-white/50 mb-3">Voter Login</p>
+                    <h2 class="font-display text-3xl font-semibold mb-4 leading-tight">Every voice counts.<br>Cast yours.</h2>
+                    <p class="text-white/60 text-sm">Login with your registered student account to view candidates and vote securely.</p>
+                </div>
+
+                <!-- FORM PANEL -->
+                <div class="bg-panel p-8 sm:p-10">
+
+                    <h1 class="font-display text-3xl font-semibold text-navy mb-1">Welcome back</h1>
+                    <p class="text-subink text-sm mb-6">Login to continue voting</p>
+
+                    <% if(error.length> 0) { %>
+                        <div class="bg-seal-50 text-seal-700 border border-seal/20 p-3 rounded-lg mb-4 text-sm">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/login" method="POST" class="space-y-5">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div>
+                            <label class="block mb-2 text-sm font-semibold text-ink">Email</label>
+                            <input type="email" name="email" placeholder="Enter your email" required
+                                class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 text-sm font-semibold text-ink">Password</label>
+                            <input type="password" name="password" placeholder="Enter your password" required
+                                class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        </div>
+
+                        <button
+                            class="btn-lift w-full bg-navy text-white py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">
+                            Login
+                        </button>
+
+                    </form>
+
+                    <%- include("includes/password-toggle") %>
+
+                    <p class="text-center mt-6 text-subink text-sm">
+                        Don't have an account?
+                        <a href="/signup" class="text-navy font-semibold hover:underline">Signup</a>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+</body>
+
+</html>

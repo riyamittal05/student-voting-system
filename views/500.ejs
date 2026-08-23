@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Something Went Wrong</title>
+    <%- include("includes/head") %>
+</head>
+<body class="bg-paper min-h-screen text-ink flex items-center justify-center">
+    <div class="text-center px-6 max-w-lg">
+        <p class="font-display text-7xl font-semibold text-seal mb-4">500</p>
+        <h1 class="font-display text-3xl font-semibold mb-3">Something went wrong</h1>
+        <p class="text-subink mb-8"><%= typeof message !== "undefined" ? message : "Please try again later." %></p>
+        <a href="/" class="inline-block bg-navy hover:bg-navy-700 text-white px-8 py-3 rounded-lg text-sm font-semibold transition">Go home</a>
+    </div>
+</body>
+</html>

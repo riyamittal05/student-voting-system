@@ -1,0 +1,71 @@
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: "#FAF9F5",
+                        panel: "#FFFFFF",
+                        ink: "#1C2321",
+                        subink: "#5B6260",
+                        hairline: "#DEDACE",
+                        navy: {
+                            DEFAULT: "#1E3A5F",
+                            50: "#EEF2F6",
+                            100: "#DCE4EC",
+                            600: "#1E3A5F",
+                            700: "#16293F",
+                            900: "#0F1C2E",
+                        },
+                        seal: {
+                            DEFAULT: "#B23A2E",
+                            50: "#FBEEEC",
+                            600: "#B23A2E",
+                            700: "#8E2E24",
+                        },
+                        sash: {
+                            DEFAULT: "#2F6844",
+                            50: "#EAF3EC",
+                            600: "#2F6844",
+                        },
+                    },
+                    fontFamily: {
+                        display: ["'Fraunces'", "serif"],
+                        sans: ["'Inter'", "sans-serif"],
+                        mono: ["'IBM Plex Mono'", "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FAF9F5; }
+        .font-display { font-family: 'Fraunces', serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ballot-stub {
+            border-top: 2px dashed #DEDACE;
+        }
+        /* Subtle punch-card dot texture used on navy sections for depth */
+        .pattern-dots {
+            background-image: radial-gradient(rgba(255,255,255,0.09) 1.5px, transparent 1.5px);
+            background-size: 22px 22px;
+        }
+        .card-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px -8px rgba(30, 58, 95, 0.25);
+        }
+        .btn-lift {
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .btn-lift:hover {
+            transform: translateY(-2px);
+        }
+    </style>

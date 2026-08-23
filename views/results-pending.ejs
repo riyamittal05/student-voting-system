@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Results Not Yet Available</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen text-ink">
+
+    <%- include("includes/navbar") %>
+    <%- include("includes/flash") %>
+
+    <div class="flex flex-col items-center justify-center text-center py-32 px-6">
+
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-4">Ballot Box Sealed</p>
+
+        <h1 class="font-display text-4xl md:text-5xl font-semibold text-navy mb-4">
+            Results aren't published yet
+        </h1>
+
+        <p class="text-subink text-lg max-w-xl mb-8">
+            <% if(electionStatus==='upcoming'){ %>
+                Voting hasn't started yet. Results will be shown once voting closes.
+            <% } else { %>
+                Voting is currently in progress. To keep the count fair, results are hidden until voting closes.
+            <% } %>
+        </p>
+
+        <% if(election && election.votingEnd){ %>
+            <div id="results-countdown"
+                class="bg-panel border border-hairline rounded-xl px-8 py-6 font-display text-2xl font-semibold text-navy shadow-sm"
+                data-end="<%= election.votingEnd.toISOString() %>">
+            </div>
+        <% } %>
+
+        <a href="/" class="mt-10 text-navy hover:underline font-medium">Back to home</a>
+
+    </div>
+
+    <script>
+        (function () {
+            const el = document.getElementById("results-countdown");
+            if (!el) return;
+            const end = new Date(el.dataset.end).getTime();
+
+            function fmt(ms) {
+                const totalSec = Math.max(0, Math.floor(ms / 1000));
+                const d = Math.floor(totalSec / 86400);
+                const h = Math.floor((totalSec % 86400) / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                return `${d}d ${h}h ${m}m ${s}s`;
+            }
+
+            function tick() {
+                const now = Date.now();
+                if (now >= end) {
+                    el.textContent = "Results available now — refresh the page";
+                } else {
+                    el.textContent = "Results in " + fmt(end - now);
+                }
+            }
+            tick();
+            setInterval(tick, 1000);
+        })();
+    </script>
+
+</body>
+
+</html>

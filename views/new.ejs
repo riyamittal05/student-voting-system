@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Add Candidate</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+
+        <div class="max-w-2xl mx-auto p-6 py-12">
+            <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-2">New Nomination</p>
+            <h1 class="font-display text-4xl font-semibold text-navy mb-8">Add new candidate</h1>
+            <% if(error){%>
+                <p class="bg-seal-50 text-seal-700 border border-seal/20 p-3 rounded-lg mb-4 text-sm">
+                    <%=error%>
+                </p>
+                <% } %>
+                    <form action="/candidates" method="POST" enctype="multipart/form-data"
+                        class="bg-panel p-6 rounded-xl border border-hairline shadow-sm">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-semibold text-ink">
+                                Candidate name
+                            </label>
+                            <input type="text" name="name" placeholder="Enter name" required
+                                class="w-full border border-hairline p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-semibold text-ink">Age</label>
+                            <input type="number" name="age" placeholder="Enter age"
+                                class="w-full border border-hairline p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-semibold text-ink">Class</label>
+                            <input type="text" name="className" placeholder="Enter class"
+                                class="w-full border border-hairline p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-semibold text-ink">Position</label>
+                            <input type="text" name="position" placeholder="Enter position" list="position-suggestions"
+                                required
+                                class="w-full border border-hairline p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                            <datalist id="position-suggestions">
+                                <option value="President">
+                                <option value="Vice President">
+                                <option value="Secretary">
+                                <option value="Treasurer">
+                                <option value="Class Representative">
+                            </datalist>
+                         
+                        </div>
+                        <!-- IMAGE -->
+
+                        <div>
+
+                            <label class="block mb-2 text-sm font-semibold text-ink">
+
+                                Candidate image
+
+                            </label>
+
+                            <input type="file" name="image" class="w-full border border-hairline rounded-lg px-4 py-3">
+
+                        </div>
+                        <button class="mt-4 bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy-700 transition font-semibold shadow-sm">Add
+                            candidate</button>
+                    </form>
+        </div>
+</body>
+
+</html>
