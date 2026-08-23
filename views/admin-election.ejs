@@ -113,7 +113,28 @@
                 </form>
             </div>
         </div>
+<!-- START NEW ELECTION -->
+<div class="bg-panel border border-seal/30 rounded-xl shadow-sm p-8 mt-8">
+    <h2 class="font-display text-2xl font-semibold text-seal mb-3">Start a new election</h2>
+    <p class="text-subink mb-6">
+    Use this when reusing this app for a fresh election cycle (e.g. next semester). It
+    <strong>permanently deletes every candidate</strong> (and their photos),
+    <strong>deletes every student account</strong>, and
+    <strong>clears the eligible voter roll number list</strong>.
+    Admin accounts are kept — you'll stay logged in. Students will need to sign up again
+    once you upload a new roll number list. This cannot be undone.
+</p>
 
+    <form action="/admin/election/reset" method="POST"
+        onsubmit="return confirm('This will delete all candidates and reset every student\'s voting record. This cannot be undone. Are you sure?')">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        
+        <button
+            class="w-full bg-seal text-white py-3 rounded-lg hover:bg-seal-700 transition font-semibold shadow-sm">
+            Start new election (reset everything)
+        </button>
+    </form>
+</div>
     </div>
 
 </body>

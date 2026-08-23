@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+
 const express = require("express");
 const flash = require("connect-flash");
 const mongoose = require("mongoose");
@@ -717,7 +718,30 @@ app.post("/admin/election/declare-results", isAdmin, verifyToken, wrapAsync(asyn
     );
     res.redirect("/admin/election");
 }));
+app.post("/admin/election/reset", isAdmin, verifyToken, wrapAsync(async (req, res) => {
+    const candidatesToDelete = await Candidate.find({ imagePublicId: { $ne: null } }, "imagePublicId");
+    for (const candidate of candidatesToDelete) {
+        try {
+            await cloudinary.uploader.destroy(candidate.imagePublicId);
+        } catch (err) {
+            console.error("Failed to delete Cloudinary image during election reset:", err);
+        }
+    }
 
+    await Candidate.deleteMany({});
+    await User.deleteMany({ role: { $ne: "admin" } });
+    await EligibleVoter.deleteMany({});
+
+    const election = await getElectionSettings();
+    election.votingStart = null;
+    election.votingEnd = null;
+    election.resultsDeclared = false;
+    election.resultsDeclaredAt = null;
+    await election.save();
+
+    req.flash("success", "Election reset - all candidates, student accounts, and the eligible voter list have been cleared. Ready for a new election.");
+    res.redirect("/admin/election");
+}));
 // ---------- ADMIN: MANAGE ADMINS ----------
 
 app.get("/admin/users", isAdmin, wrapAsync(async (req, res) => {
