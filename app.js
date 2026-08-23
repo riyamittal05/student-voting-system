@@ -198,7 +198,7 @@ app.get("/candidates/new", isAdmin, (req, res) => {
     res.render("new.ejs", { error: null });
 });
 
-app.post("/candidates", isAdmin, verifyToken, upload.single("image"), wrapAsync(async (req, res) => {
+app.post("/candidates", isAdmin, upload.single("image"), verifyToken, wrapAsync(async (req, res) => {
     try {
         let { name, age, className, position } = req.body;
 
@@ -242,7 +242,7 @@ app.get("/candidates/:id/edit", isAdmin, wrapAsync(async (req, res) => {
     res.render("edit", { candidate });
 }));
 
-app.put("/candidates/:id", isAdmin, verifyToken, upload.single("image"), wrapAsync(async (req, res) => {
+app.put("/candidates/:id", isAdmin,  upload.single("image"), verifyToken,wrapAsync(async (req, res) => {
     const { id } = req.params;
     const candidate = await Candidate.findById(id);
     if (!candidate) {
