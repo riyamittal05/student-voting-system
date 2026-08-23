@@ -8,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 const upload = require("./middleware/multer");
 const Candidate = require("./models/candidate");
 const app = express();
+app.set("trust proxy", 1);
 const methodOverride = require("method-override");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
