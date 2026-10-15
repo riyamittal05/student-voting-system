@@ -1,0 +1,49 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: voting-mongo
+    restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: >
+        mongosh --quiet --eval
+        "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}).ok }"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: voting-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # A local single-node replica set is required for the vote route's
+      # multi-document transaction to work at all - a plain standalone
+      # mongod will throw "Transaction numbers are only allowed on a
+      # replica set member or mongos".
+      MONGO_URL: mongodb://mongo:27017/student-voting?replicaSet=rs0
+      SECRET: ${SECRET}
+      CLOUD_NAME: ${CLOUD_NAME}
+      CLOUD_API_KEY: ${CLOUD_API_KEY}
+      CLOUD_API_SECRET: ${CLOUD_API_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      MAIL_FROM: ${MAIL_FROM}
+      ALLOWED_EMAIL_DOMAIN: ${ALLOWED_EMAIL_DOMAIN}
+      APP_NAME: ${APP_NAME}
+      NODE_ENV: production
+      PORT: 8080
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

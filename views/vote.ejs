@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Vote Page</title>
+    <%- include("includes/head.ejs") %>
+</head>
+
+<body class="bg-paper min-h-screen text-ink">
+
+    <%- include("includes/navbar.ejs") %>
+
+        <%- include("includes/flash.ejs") %>
+
+            <div class="pattern-dots bg-navy-900 py-16 px-6">
+
+                <!-- HEADING -->
+                <div class="max-w-7xl mx-auto text-center">
+
+                    <p class="font-mono text-xs uppercase tracking-[0.3em] text-white/50 mb-3">Cast Your Ballot</p>
+
+                    <h1 class="font-display text-5xl font-semibold text-white mb-4">
+                        Vote for your candidates
+                    </h1>
+
+                    <p class="text-white/70 text-lg">
+                        You can cast one vote per post
+                    </p>
+
+                    <% if(electionStatus==='upcoming'){ %>
+                        <div class="mt-6 inline-block bg-amber-500/15 text-amber-300 border border-amber-400/30 px-6 py-3 rounded-lg font-semibold text-sm"
+                            id="vote-window-banner"
+                            data-start="<%= election.votingStart.toISOString() %>"
+                            data-end="<%= election.votingEnd.toISOString() %>">
+                            Voting hasn't started yet
+                        </div>
+                    <% } else if(electionStatus==='closed'){ %>
+                        <div class="mt-6 inline-block bg-white/10 text-white/70 border border-white/20 px-6 py-3 rounded-lg font-semibold text-sm">
+                            Voting has closed. <a href="/results" class="underline">View results</a>
+                        </div>
+                    <% } else if(electionStatus==='live'){ %>
+                        <div class="mt-6 inline-block bg-sash-600/20 text-emerald-300 border border-emerald-400/30 px-6 py-3 rounded-lg font-semibold text-sm"
+                            id="vote-window-banner"
+                            data-start="<%= election.votingStart.toISOString() %>"
+                            data-end="<%= election.votingEnd.toISOString() %>">
+                            Voting is open
+                        </div>
+                    <% } %>
+
+                </div>
+
+            </div>
+
+            <div class="max-w-7xl mx-auto py-14 px-6">
+
+                <script>
+                    (function () {
+                        const el = document.getElementById("vote-window-banner");
+                        if (!el || !el.dataset.end) return;
+                        const end = new Date(el.dataset.end).getTime();
+                        const start = new Date(el.dataset.start).getTime();
+
+                        function fmt(ms) {
+                            const totalSec = Math.max(0, Math.floor(ms / 1000));
+                            const d = Math.floor(totalSec / 86400);
+                            const h = Math.floor((totalSec % 86400) / 3600);
+                            const m = Math.floor((totalSec % 3600) / 60);
+                            const s = totalSec % 60;
+                            return `${d}d ${h}h ${m}m ${s}s`;
+                        }
+
+                        function tick() {
+                            const now = Date.now();
+                            if (now < start) {
+                                el.textContent = "Voting opens in " + fmt(start - now);
+                            } else if (now <= end) {
+                                el.textContent = "Voting closes in " + fmt(end - now);
+                            } else {
+                                el.textContent = "Voting has closed";
+                                location.reload();
+                            }
+                        }
+                        tick();
+                        setInterval(tick, 1000);
+                    })();
+                </script>
+
+                <% const positionNames=Object.keys(positions); %>
+
+                    <% if(positionNames.length===0){ %>
+
+                        <p class="text-center text-subink text-lg">No candidates have been added yet. Check back
+                            later.</p>
+
+                        <% } %>
+
+                            <!-- ONE SECTION PER POST -->
+                            <% positionNames.forEach((position)=> { %>
+
+                                <% const alreadyVoted=votedPositions.includes(position); %>
+
+                                    <section class="mb-16">
+
+                                        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+
+                                            <h2 class="font-display text-3xl font-semibold text-navy">
+                                                <%= position %>
+                                            </h2>
+
+                                            <% if(alreadyVoted){ %>
+
+                                                <span class="bg-sash-50 text-sash-600 border border-sash-600/30 px-4 py-2 rounded-lg text-sm font-semibold">
+                                                    ✓ You already voted for this post
+                                                </span>
+
+                                                <% } %>
+
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+                                            <% positions[position].forEach((candidate)=> { %>
+
+                                                <div
+                                                    class="bg-panel rounded-xl overflow-hidden shadow-sm border border-hairline card-lift">
+
+                                                    <!-- IMAGE -->
+                                                    <img src="<%= candidate.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png' %>"
+                                                        alt="<%= candidate.name %>" class="w-full h-72 object-cover">
+
+                                                    <!-- CONTENT -->
+                                                    <div class="p-6 text-center">
+
+                                                        <h3 class="font-display text-3xl font-semibold text-navy mb-3">
+                                                            <%= candidate.name %>
+                                                        </h3>
+
+                                                        <p class="text-subink text-base mb-6">
+                                                            Class:
+                                                            <span class="text-sash-600 font-semibold">
+                                                                <%= candidate.className %>
+                                                            </span>
+                                                        </p>
+
+                                                        <!-- VOTE BUTTON -->
+                                                        <% const votingOpenNow = electionStatus !== 'upcoming' && electionStatus !== 'closed'; %>
+                                                        <% if(alreadyVoted){ %>
+
+                                                            <button disabled
+                                                                class="bg-gray-100 text-subink border border-hairline px-8 py-3 rounded-lg text-base font-semibold cursor-not-allowed">
+                                                                Already Voted
+                                                            </button>
+
+                                                            <% } else if(!votingOpenNow){ %>
+
+                                                                <button disabled
+                                                                    class="bg-gray-100 text-subink border border-hairline px-8 py-3 rounded-lg text-base font-semibold cursor-not-allowed">
+                                                                    <%= electionStatus === 'upcoming' ? 'Voting Not Started' : 'Voting Closed' %>
+                                                                </button>
+
+                                                                <% } else { %>
+
+                                                                <form action="/vote/<%= candidate._id %>"
+                                                                    method="POST">
+
+                                                                    <input type="hidden" name="_csrf"
+                                                                        value="<%= csrfToken %>">
+
+                                                                    <button
+                                                                        onclick="return confirm('Are you sure you want to vote for <%= candidate.name %> as <%= position %>?')"
+                                                                        class="bg-seal hover:bg-seal-700 text-white px-8 py-3 rounded-lg text-base font-semibold transition shadow-sm">
+
+                                                                        Vote now
+
+                                                                    </button>
+
+                                                                </form>
+
+                                                                <% } %>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <% }) %>
+
+                                        </div>
+
+                                    </section>
+
+                                    <% }) %>
+
+            </div>
+
+</body>
+
+</html>

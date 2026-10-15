@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Edit Candidate</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen text-ink">
+
+    <%- include("includes/navbar") %>
+
+        <div class="flex justify-center items-center py-16 px-4">
+
+            <div class="bg-panel w-full max-w-xl rounded-2xl shadow-sm p-8 border border-hairline">
+
+                <!-- TITLE -->
+                <div class="text-center mb-8">
+
+                    <p class="font-mono text-xs uppercase tracking-[0.2em] text-subink mb-2">Candidate Record</p>
+
+                    <h1 class="font-display text-4xl font-semibold text-navy mb-2">
+
+                        Edit candidate
+
+                    </h1>
+
+                    <p class="text-subink text-sm">
+
+                        Update candidate information
+
+                    </p>
+
+                </div>
+
+                <!-- FORM -->
+                <form action="/candidates/<%= candidate._id %>?_method=PUT" method="POST" enctype="multipart/form-data"
+                    class="space-y-5">
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                    <!-- CURRENT IMAGE -->
+                    <div class="flex justify-center">
+
+                        <img src="<%= candidate.image %>"
+                            class="w-40 h-40 rounded-full object-cover border-4 border-navy-50 shadow-sm">
+
+                    </div>
+
+                    <!-- NAME -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Candidate name
+
+                        </label>
+
+                        <input type="text" name="name" value="<%= candidate.name %>"
+                            class="w-full border border-hairline bg-paper rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- AGE -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Age
+
+                        </label>
+
+                        <input type="number" name="age" value="<%= candidate.age %>"
+                            class="w-full border border-hairline bg-paper rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- CLASS -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Class
+
+                        </label>
+
+                        <input type="text" name="className" value="<%= candidate.className %>"
+                            class="w-full border border-hairline bg-paper rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- POSITION -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Position
+
+                        </label>
+
+                        <input type="text" name="position" value="<%= candidate.position %>" list="position-suggestions"
+                            required
+                            class="w-full border border-hairline bg-paper rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+                        <datalist id="position-suggestions">
+                            <option value="President">
+                            <option value="Vice President">
+                            <option value="Secretary">
+                            <option value="Treasurer">
+                            <option value="Class Representative">
+                        </datalist>
+
+                    </div>
+
+                    <!-- IMAGE -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Update candidate image
+
+                        </label>
+
+                        <input type="file" name="image"
+                            class="w-full border border-hairline bg-paper rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button
+                        class="w-full bg-navy hover:bg-navy-700 text-white py-3 rounded-lg font-semibold text-base transition shadow-sm">
+
+                        Update candidate
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+</body>
+
+</html>

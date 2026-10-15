@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Admin Dashboard</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper min-h-screen">
+
+    <%- include("includes/navbar") %>
+        <%- include("includes/flash") %>
+
+        <!-- TITLE -->
+        <div class="pattern-dots bg-navy-900 text-center py-16 px-6">
+
+            <p class="font-mono text-xs uppercase tracking-[0.3em] text-white/50 mb-3">Election Control</p>
+
+            <h1 class="font-display text-5xl font-semibold text-white mb-4">
+
+                Admin dashboard
+
+            </h1>
+
+            <p class="text-lg text-white/70">
+
+                Manage your Student Voting System
+
+            </p>
+
+        </div>
+
+        <!-- MAIN CONTAINER -->
+        <div class="max-w-6xl mx-auto px-6 py-10">
+
+            <!-- STATISTICS GRID -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+
+                <!-- TOTAL USERS -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                        Total Users
+
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-navy whitespace-nowrap">
+
+                        <%= totalUsers %>
+
+                    </p>
+
+                </div>
+
+                <!-- TOTAL CANDIDATES -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                        Total Candidates
+
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-sash-600 whitespace-nowrap">
+
+                        <%= totalCandidates %>
+
+                    </p>
+
+                </div>
+
+                <!-- TOTAL VOTES -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                        Total Votes
+
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-seal whitespace-nowrap">
+
+                        <%= totalVotes %>
+
+                    </p>
+
+                </div>
+
+
+                <!-- STUDENTS VOTED -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+                        Students Voted
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-navy whitespace-nowrap">
+                        <%= votedStudents %>
+                    </p>
+
+                </div>
+
+                <!-- VOTING PERCENTAGE -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+                        Voting %
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-navy whitespace-nowrap">
+                        <%= votingPercentage %>%
+                    </p>
+
+                </div>
+
+                <!-- TOTAL POSTS -->
+                <div class="bg-panel border border-hairline rounded-xl shadow-sm p-5 text-center card-lift">
+
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+                        Posts Contested
+                    </h2>
+
+                    <p class="font-display text-3xl md:text-4xl font-semibold text-sash-600 whitespace-nowrap">
+                        <%= totalPositions %>
+                    </p>
+
+                </div>
+
+                <!-- ELIGIBLE VOTERS -->
+
+            </div>
+
+            <!-- ELIGIBLE VOTERS PROGRESS -->
+            <div class="bg-panel border border-hairline rounded-xl shadow-sm p-6 mt-6 card-lift">
+
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                    <h2 class="font-mono text-xs uppercase tracking-wide text-subink">
+                        Eligible voters registered
+                    </h2>
+                    <p class="font-display text-2xl font-semibold text-amber-600 whitespace-nowrap">
+                        <%= usedEligibleVoters %>/<%= totalEligibleVoters %>
+                    </p>
+                </div>
+
+                <div class="w-full bg-hairline/60 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-amber-500 h-2.5 rounded-full transition-all duration-500"
+                        style="width: <%= totalEligibleVoters > 0 ? Math.round((usedEligibleVoters / totalEligibleVoters) * 100) : 0 %>%">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ELECTION STATUS -->
+            <div class="mt-8 p-6 rounded-xl text-center font-semibold border
+                <% if(electionStatus==='live'){ %> bg-sash-50 text-sash-600 border-sash-600/30
+                <% } else if(electionStatus==='upcoming'){ %> bg-amber-50 text-amber-700 border-amber-600/30
+                <% } else if(electionStatus==='closed'){ %> bg-gray-100 text-subink border-hairline
+                <% } else { %> bg-navy-50 text-navy border-navy/20
+                <% } %>">
+                <% if(electionStatus==='live'){ %>Voting is currently live.
+                <% } else if(electionStatus==='upcoming'){ %>Voting hasn't started yet.
+                <% } else if(electionStatus==='closed'){ %>Voting has closed — full results are public now.
+                <% } else { %>No voting schedule set. <a href="/admin/election" class="underline">Set one up →</a>
+                <% } %>
+            </div>
+            <!-- QUICK ACTIONS -->
+            <div class="bg-panel border border-hairline rounded-xl shadow-sm p-8 mt-12 card-lift">
+
+                <h2 class="font-display text-3xl font-semibold text-navy mb-6">
+
+                    Quick actions
+
+                </h2>
+
+                <div class="flex flex-wrap gap-4">
+
+                    <!-- ADD CANDIDATE -->
+                    <a href="/candidates/new"
+                        class="bg-sash-600 text-white px-6 py-3 rounded-lg hover:bg-sash-600/90 transition shadow-sm">
+
+                        Add candidate
+
+                    </a>
+
+                    <!-- VIEW RESULTS -->
+                    <a href="/results"
+                        class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy-700 transition shadow-sm">
+
+                        View results
+
+                    </a>
+
+                    <!-- ELECTION SCHEDULE -->
+                    <a href="/admin/election"
+                        class="border border-hairline text-ink px-6 py-3 rounded-lg hover:border-navy hover:text-navy transition">
+
+                        Election schedule
+
+                    </a>
+
+                    <!-- ELIGIBLE VOTERS -->
+                    <a href="/admin/voters"
+                        class="border border-hairline text-ink px-6 py-3 rounded-lg hover:border-navy hover:text-navy transition">
+
+                        Eligible voters
+
+                    </a>
+
+                    <!-- MANAGE ADMINS -->
+                    <a href="/admin/users"
+                        class="border border-hairline text-ink px-6 py-3 rounded-lg hover:border-navy hover:text-navy transition">
+
+                        Manage admins
+
+                    </a>
+
+                    <!-- HOME -->
+                    <a href="/"
+                        class="bg-seal text-white px-6 py-3 rounded-lg hover:bg-seal-700 transition shadow-sm">
+
+                        Home
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+</body>
+
+</html>

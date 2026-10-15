@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Student Voting System</title>
+    <%- include("./includes/head.ejs") %>
+</head>
+
+<body class="bg-paper text-ink">
+
+    <%- include("./includes/navbar.ejs") %>
+        <%- include("./includes/flash.ejs") %>
+
+            <!-- HERO SECTION -->
+            <section class="pattern-dots bg-navy-900 flex flex-col items-center justify-center text-center py-28 px-6">
+
+                <p class="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-4">Campus Election 2026</p>
+
+                <h1 class="font-display text-5xl md:text-6xl font-semibold mb-6 text-white">
+                    Secure Student Voting
+                </h1>
+
+                <p class="text-lg md:text-xl text-white/70 mb-10">
+                    Fast · Fair · Transparent
+                </p>
+
+                <div class="flex gap-4 flex-wrap justify-center">
+                    <% if(!currentUser){ %>
+
+                        <a href="/login"
+                            class="btn-lift bg-seal hover:bg-seal-700 text-white px-8 py-3 rounded-lg text-base font-semibold transition shadow-lg">
+                            Login to vote
+
+                        </a>
+
+                        <% } %>
+                            <% let remainingPositions = currentUser && currentUser.role==="student" ?
+                                Math.max(totalPositions - currentUser.votedPositions.length, 0) : 0; %>
+
+                            <% if(currentUser && currentUser.role==="student" && remainingPositions> 0){ %>
+
+                                <a href="/vote"
+                                    class="btn-lift bg-seal hover:bg-seal-700 transition text-white px-8 py-3 rounded-lg text-base font-semibold shadow-lg">
+                                    Vote now (<%= remainingPositions %> post<%= remainingPositions > 1 ? "s" : "" %> left)
+                                </a>
+
+                                <% } %>
+
+                                    <% if(currentUser && currentUser.role==="student" && remainingPositions===0 && totalPositions> 0){ %>
+
+                                        <span
+                                            class="bg-white/10 text-emerald-300 border border-emerald-400/30 px-8 py-3 rounded-lg text-base font-semibold">
+                                            ✓ You have voted in every post
+                                        </span>
+
+                                        <% } %>
+
+                                            <% if(currentUser && currentUser.role==="admin" ){ %>
+
+                                                <a href="/results"
+                                                    class="border border-white/30 hover:border-white/60 transition text-white px-8 py-3 rounded-lg text-base font-semibold">
+
+                                                    View results
+
+                                                </a>
+
+                                                <% } %>
+
+                </div>
+
+            </section>
+            <div class="max-w-4xl mx-auto px-6 my-10">
+
+                <form action="/" method="GET">
+
+                    <input type="text" name="search" placeholder="Search candidate..."
+                        class="w-full px-5 py-3 rounded-lg text-ink bg-panel border border-hairline focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                </form>
+
+            </div>
+            <!-- ELECTION STATUS -->
+            <section class="max-w-6xl mx-auto px-6 pb-20">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+
+                    <!-- TOTAL CANDIDATES -->
+                    <div
+                        class="bg-panel border border-hairline rounded-xl p-6 md:p-8 shadow-sm card-lift">
+
+                        <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-3">
+                            Total Candidates
+                        </h2>
+
+                        <p class="font-display text-4xl md:text-5xl font-semibold text-navy whitespace-nowrap">
+                            <%= candidates.length %>
+                        </p>
+
+                    </div>
+
+                    <!-- TOTAL VOTES -->
+                    <div
+                        class="bg-panel border border-hairline rounded-xl p-6 md:p-8 shadow-sm card-lift">
+
+                        <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-3">
+                            Total Votes Cast
+                        </h2>
+
+                        <p class="font-display text-4xl md:text-5xl font-semibold text-sash-600 whitespace-nowrap">
+                            <%= totalVotes %>
+                        </p>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div
+                        class="bg-panel border border-hairline rounded-xl p-6 md:p-8 shadow-sm card-lift">
+
+                        <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-3">
+                            Election Status
+                        </h2>
+
+                        <p class="font-display text-3xl font-semibold
+                            <% if(electionStatus==='live'){ %> text-sash-600
+                            <% } else if(electionStatus==='upcoming'){ %> text-amber-600
+                            <% } else if(electionStatus==='closed'){ %> text-subink
+                            <% } else { %> text-navy
+                            <% } %>">
+                            <% if(electionStatus==='live'){ %>Live
+                            <% } else if(electionStatus==='upcoming'){ %>Not started
+                            <% } else if(electionStatus==='closed'){ %>Closed
+                            <% } else { %>Open
+                            <% } %>
+                        </p>
+
+                        <% if(election && election.votingStart && election.votingEnd){ %>
+                            <p id="home-countdown" class="font-mono text-sm text-subink mt-2"
+                                data-start="<%= election.votingStart.toISOString() %>"
+                                data-end="<%= election.votingEnd.toISOString() %>"></p>
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <script>
+                (function () {
+                    const el = document.getElementById("home-countdown");
+                    if (!el) return;
+                    const start = new Date(el.dataset.start).getTime();
+                    const end = new Date(el.dataset.end).getTime();
+
+                    function fmt(ms) {
+                        const totalSec = Math.max(0, Math.floor(ms / 1000));
+                        const d = Math.floor(totalSec / 86400);
+                        const h = Math.floor((totalSec % 86400) / 3600);
+                        const m = Math.floor((totalSec % 3600) / 60);
+                        const s = totalSec % 60;
+                        return `${d}d ${h}h ${m}m ${s}s`;
+                    }
+
+                    function tick() {
+                        const now = Date.now();
+                        if (now < start) {
+                            el.textContent = "Starts in " + fmt(start - now);
+                        } else if (now <= end) {
+                            el.textContent = "Ends in " + fmt(end - now);
+                        } else {
+                            el.textContent = "Voting has closed";
+                        }
+                    }
+                    tick();
+                    setInterval(tick, 1000);
+                })();
+            </script>
+
+            <!-- CANDIDATES SECTION -->
+
+            <section class="max-w-6xl mx-auto px-6 pb-20">
+
+                <h2 class="font-display text-4xl font-semibold text-center mb-12 text-ink">
+                    Candidates
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <% candidates.forEach((candidate)=> { %>
+
+                        <div
+                            class="bg-panel rounded-xl overflow-hidden shadow-sm border border-hairline card-lift">
+
+                            <!-- IMAGE -->
+                            <img src="<%= candidate.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png' %>"
+                                alt="<%= candidate.name %>" class="w-full h-64 object-cover">
+
+                            <!-- CONTENT -->
+                            <div class="p-6 text-center">
+                                <h3 class="font-display text-2xl font-semibold text-navy mb-2">
+                                    <%= candidate.name %>
+                                </h3>
+
+                                <p class="text-subink mb-1">
+                                    Position: <%= candidate.position %>
+                                </p>
+
+                                <p class="text-subink">
+                                    Class: <%= candidate.className %>
+                                </p>
+                                <% if(currentUser && currentUser.role==="admin" ){ %>
+
+                                    <div class="flex justify-center items-center gap-2 flex-wrap mt-4">
+
+                                        <% } else { %>
+
+                                            <div class="flex justify-center mt-4">
+
+                                                <% } %>
+
+
+
+                                                    <% if(currentUser && currentUser.role==="admin" ){ %>
+
+                                                        <a href="/candidates/<%= candidate._id %>/edit"
+                                                            class="border border-hairline hover:border-navy hover:text-navy transition px-4 py-2 rounded-lg text-sm font-semibold">
+
+                                                            Edit
+
+                                                        </a>
+
+                                                        <form
+                                                            action="/candidates/<%= candidate._id %>?_method=DELETE"
+                                                            method="POST">
+                                                            <input type="hidden" name="_csrf"
+                                                                value="<%= csrfToken %>">
+
+                                                            <button onclick="return confirm('Delete Candidate?')"
+                                                                class="bg-seal hover:bg-seal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+
+                                                                Delete
+
+                                                            </button>
+
+                                                        </form>
+
+                                                        <% } %>
+
+                                            </div>
+
+                                    </div>
+
+                            </div>
+
+                            <% }) %>
+
+                        </div>
+
+            </section>
+
+            <!-- HOW TO VOTE -->
+            <section class="bg-navy-50/40 py-20 px-6 border-t border-hairline">
+
+                <h2 class="font-display text-4xl font-semibold text-center mb-14 text-navy">
+                    How to Vote
+                </h2>
+
+                <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <div class="bg-panel border border-hairline p-6 rounded-xl text-center shadow-sm">
+
+                        <div class="font-mono text-3xl font-semibold text-navy mb-3">01</div>
+
+                        <h3 class="text-lg font-semibold mb-2 text-ink">
+                            Login
+                        </h3>
+
+                        <p class="text-subink text-sm">
+                            Login using your registered account
+                        </p>
+
+                    </div>
+
+                    <div class="bg-panel border border-hairline p-6 rounded-xl text-center shadow-sm">
+
+                        <div class="font-mono text-3xl font-semibold text-navy mb-3">02</div>
+
+                        <h3 class="text-lg font-semibold mb-2 text-ink">
+                            Select candidate
+                        </h3>
+
+                        <p class="text-subink text-sm">
+                            Choose your preferred candidate
+                        </p>
+
+                    </div>
+
+                    <div class="bg-panel border border-hairline p-6 rounded-xl text-center shadow-sm">
+
+                        <div class="font-mono text-3xl font-semibold text-navy mb-3">03</div>
+
+                        <h3 class="text-lg font-semibold mb-2 text-ink">
+                            Submit vote
+                        </h3>
+
+                        <p class="text-subink text-sm">
+                            Submit your vote securely
+                        </p>
+
+                    </div>
+
+                    <div class="bg-panel border border-hairline p-6 rounded-xl text-center shadow-sm">
+
+                        <div class="font-mono text-3xl font-semibold text-navy mb-3">04</div>
+
+                        <h3 class="text-lg font-semibold mb-2 text-ink">
+                            Vote recorded
+                        </h3>
+
+                        <p class="text-subink text-sm">
+                            You can vote only once
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- FOOTER -->
+            <footer class="bg-panel text-center py-6 border-t border-hairline">
+
+                <p class="text-subink text-sm">
+                    © 2026 Student Voting System · Secure Digital Elections
+                </p>
+
+            </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Election Results</title>
+    <%- include("includes/head") %>
+</head>
+
+<body class="bg-paper">
+
+    <%- include("includes/navbar") %>
+        <%- include("includes/flash") %>
+
+            <div class="pattern-dots bg-navy-900 py-16 px-6">
+                <div class="max-w-7xl mx-auto text-center">
+                    <p class="font-mono text-xs uppercase tracking-[0.3em] text-white/50 mb-3">Official Tally</p>
+                    <h1 class="font-display text-5xl font-semibold text-white mb-2">
+                        Election results
+                    </h1>
+
+                    <% if(typeof isAdminPreview !== "undefined" && isAdminPreview){ %>
+                        <p class="text-amber-300 font-semibold mt-4">
+                            Admin preview — voting is still <%= electionStatus %>. Students can't see this yet.
+                        </p>
+                    <% } %>
+
+                    <% if(currentUser && currentUser.role==="admin"){ %>
+                        <div class="mt-6">
+                            <a href="/results/export.csv"
+                                class="btn-lift inline-block bg-seal hover:bg-seal-700 text-white px-6 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+                                Export CSV
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="min-h-screen text-ink p-6">
+
+                <div class="max-w-7xl mx-auto">
+
+                    <!-- ANALYTICS -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 mt-10">
+
+                        <!-- TOTAL VOTES -->
+                        <div class="bg-panel border border-hairline p-8 rounded-xl shadow-sm text-center card-lift">
+
+                            <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                                Total Votes
+
+                            </h2>
+
+                            <p class="font-display text-5xl font-semibold text-sash-600">
+
+                                <%= totalVotes %>
+
+                            </p>
+
+                        </div>
+
+                        <!-- TOTAL POSTS -->
+                        <div class="bg-panel border border-hairline p-8 rounded-xl shadow-sm text-center card-lift">
+
+                            <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                                Posts Contested
+
+                            </h2>
+
+                            <p class="font-display text-5xl font-semibold text-navy">
+
+                                <%= Object.keys(byPosition).length %>
+
+                            </p>
+
+                        </div>
+
+                        <!-- STATUS -->
+                        <div class="bg-panel border border-hairline p-8 rounded-xl shadow-sm text-center card-lift">
+
+                            <h2 class="font-mono text-xs uppercase tracking-wide text-subink mb-4">
+
+                                Election Status
+
+                            </h2>
+
+                            <p class="font-display text-4xl font-semibold
+                                <% if(electionStatus==='live'){ %> text-sash-600
+                                <% } else if(electionStatus==='closed'){ %> text-subink
+                                <% } else { %> text-amber-600
+                                <% } %>">
+                                <% if(electionStatus==='live'){ %>Live
+                                <% } else if(electionStatus==='closed'){ %>Closed
+                                <% } else if(electionStatus==='upcoming'){ %>Not started
+                                <% } else { %>Open
+                                <% } %>
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <% if(Object.keys(byPosition).length===0){ %>
+
+                        <p class="text-center text-subink text-lg">No candidates yet — add some to see results.</p>
+
+                        <% } %>
+
+                            <!-- ONE BLOCK PER POST -->
+                            <% Object.keys(byPosition).forEach((position)=> { %>
+
+                                <% const candidates=byPosition[position]; %>
+                                    <% const winner=winners[position]; %>
+                                        <% let positionTotal=0; candidates.forEach(c=> positionTotal += c.votes); %>
+
+                                            <section class="mb-16">
+
+                                                <h2 class="font-display text-4xl font-semibold text-navy mb-6">
+                                                    <%= position %>
+                                                </h2>
+
+                                                <!-- WINNER FOR THIS POST -->
+                                                <% if(winner && winner.votes> 0){ %>
+
+                                                    <div
+                                                        class="bg-panel border-2 border-seal rounded-xl p-8 mb-8 shadow-sm text-center ballot-stub">
+
+                                                        <p class="font-mono text-xs uppercase tracking-[0.2em] text-seal mb-4">
+                                                            Leading Candidate
+                                                        </p>
+
+                                                        <img src="<%= winner.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png' %>"
+                                                            alt="<%= winner.name %>"
+                                                            class="w-28 h-28 mx-auto rounded-full object-cover border-4 border-seal shadow-sm mb-4">
+
+                                                        <h4 class="font-display text-4xl font-semibold mb-2 text-navy">
+                                                            <%= winner.name %>
+                                                        </h4>
+
+                                                        <p class="text-lg text-subink">
+                                                            Votes: <%= winner.votes %>
+                                                        </p>
+
+                                                    </div>
+
+                                                    <% } %>
+
+                                                        <!-- ALL CANDIDATES FOR THIS POST -->
+                                                        <div class="space-y-6">
+
+                                                            <% candidates.forEach((candidate, index)=> { %>
+
+                                                                <% let percentage=0; if(positionTotal> 0){
+                                                                    percentage = ((candidate.votes / positionTotal) *
+                                                                    100).toFixed(1);
+                                                                    }
+                                                                    %>
+
+                                                                    <div
+                                                                        class="bg-panel border border-hairline rounded-xl p-8 shadow-sm card-lift">
+
+                                                                        <div
+                                                                            class="flex flex-col md:flex-row md:justify-between md:items-center gap-6 mb-6">
+
+                                                                            <div class="flex items-center gap-5">
+
+                                                                                <img src="<%= candidate.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png' %>"
+                                                                                    alt="<%= candidate.name %>"
+                                                                                    class="w-24 h-24 rounded-full object-cover border-4 border-navy-50">
+
+                                                                                <div>
+
+                                                                                    <h3
+                                                                                        class="text-3xl font-bold text-blue-400">
+                                                                                        #<%= index + 1 %> —
+                                                                                            <%= candidate.name %>
+                                                                                    </h3>
+
+                                                                                    <p class="text-gray-400 mt-2">
+                                                                                        Class:
+                                                                                        <%= candidate.className %>
+                                                                                    </p>
+
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <div class="text-right">
+
+                                                                                <p
+                                                                                    class="text-4xl font-bold text-green-400">
+                                                                                    <%= candidate.votes %>
+                                                                                </p>
+
+                                                                                <p class="text-lg text-gray-300">
+                                                                                    Votes
+                                                                                </p>
+
+                                                                                <p
+                                                                                    class="text-xl font-semibold text-yellow-400 mt-2">
+                                                                                    <%= percentage %>%
+                                                                                </p>
+
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div
+                                                                            class="w-full bg-hairline/60 rounded-full h-3 overflow-hidden">
+
+                                                                            <div class="bg-navy h-3 rounded-full transition-all duration-500"
+                                                                                style="width:<%= percentage %>%">
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <% }) %>
+
+                                                        </div>
+
+                                            </section>
+
+                                            <% }) %>
+
+                </div>
+
+            </div>
+
+</body>
+
+</html>
