@@ -21,7 +21,11 @@ const loadElection = require("./middleware/loadElection");
 const { Election, getElectionSettings, getElectionStatus } = require("./models/election");
 const EligibleVoter = require("./models/eligibleVoter");
 const { shuffleForVoter } = require("./utils/ballotOrder");
+<<<<<<< HEAD
 const { validateEmail } = require("./utils/otp");
+=======
+const { validateEmail, assignOtp, checkOtp, resendCooldownRemaining, sendOtpEmail } = require("./utils/otp");
+>>>>>>> origin/main
 
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
@@ -170,6 +174,13 @@ const isStudent = async (req, res, next) => {
         req.flash("error", "Only students can vote");
         return res.redirect("/");
     }
+<<<<<<< HEAD
+=======
+    if (!user.emailVerified) {
+        req.flash("error", "Please verify your email before voting. We can resend the code if you need it.");
+        return res.redirect(`/verify-email?email=${encodeURIComponent(user.email)}`);
+    }
+>>>>>>> origin/main
     req.currentDbUser = user;
     next();
 };
@@ -280,6 +291,7 @@ app.delete("/candidates/:id", isAdmin, verifyToken, wrapAsync(async (req, res) =
 
 // ---------- AUTH ----------
 
+<<<<<<< HEAD
 app.get("/signup", wrapAsync(async (req, res) => {
     const anyVotersConfigured = (await EligibleVoter.estimatedDocumentCount()) > 0;
     res.render("signup", { anyVotersConfigured });
@@ -289,6 +301,17 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
 
     if (!username || !email || !password) {
         req.flash("error", "All fields are required");
+=======
+app.get("/signup", (req, res) => {
+    res.render("signup");
+});
+
+app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
+    let { username, email, password, rollNumber } = req.body;
+
+    if (!username || !email || !password || !rollNumber) {
+        req.flash("error", "All fields are required, including your roll number");
+>>>>>>> origin/main
         return res.redirect("/signup");
     }
     if (password.length < 6) {
@@ -296,6 +319,10 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
         return res.redirect("/signup");
     }
 
+<<<<<<< HEAD
+=======
+    const normalizedRoll = rollNumber.trim().toUpperCase();
+>>>>>>> origin/main
     const normalizedEmail = email.toLowerCase().trim();
 
     const emailCheck = await validateEmail(normalizedEmail);
@@ -311,6 +338,7 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
     }
 
     // Roll number must be on the admin-approved eligible-voter list and not
+<<<<<<< HEAD
     // already used by another account - this is what actually stops someone
     // from creating unlimited fake student accounts to vote repeatedly,
     // signup (not just login) is where ballot stuffing gets blocked.
@@ -343,6 +371,20 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
     }
     // else: no roll numbers configured yet - skip roll number entirely,
     // normalizedRoll stays undefined so it's just not set on the user.
+=======
+    // already used by another account. This is what actually stops someone
+    // from creating unlimited fake student accounts to vote repeatedly -
+    // signup, not just login, is where ballot stuffing gets blocked.
+    const eligibleVoter = await EligibleVoter.findOne({ rollNumber: normalizedRoll });
+    if (!eligibleVoter) {
+        req.flash("error", "This roll number is not on the eligible voters list. Contact the election admin.");
+        return res.redirect("/signup");
+    }
+    if (eligibleVoter.used) {
+        req.flash("error", "An account has already been created for this roll number.");
+        return res.redirect("/signup");
+    }
+>>>>>>> origin/main
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = new User({
@@ -351,6 +393,7 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
         password: hashedPassword,
         role: "student",
         rollNumber: normalizedRoll,
+<<<<<<< HEAD
         // Email OTP verification is disabled for the interview demo.
         emailVerified: true,
     });
@@ -367,6 +410,90 @@ app.post("/signup", authLimiter, verifyToken, wrapAsync(async (req, res) => {
     res.redirect("/login");
 }));
 
+=======
+        emailVerified: false,
+    });
+
+    const code = await assignOtp(newUser);
+    await newUser.save();
+
+    eligibleVoter.used = true;
+    eligibleVoter.usedBy = newUser._id;
+    await eligibleVoter.save();
+
+    await sendOtpEmail(newUser.email, code);
+
+    req.session.pendingVerifyEmail = newUser.email;
+    req.flash("success", "We've sent a 6-digit verification code to your email. Enter it below to activate your account.");
+    res.redirect("/verify-email");
+}));
+
+// ---------- EMAIL OTP VERIFICATION ----------
+
+app.get("/verify-email", (req, res) => {
+    const email = req.query.email || req.session.pendingVerifyEmail || "";
+    res.render("verify-email", { email });
+});
+
+app.post("/verify-email", verifyToken, wrapAsync(async (req, res) => {
+    const email = (req.body.email || req.session.pendingVerifyEmail || "").toLowerCase().trim();
+    const code = (req.body.code || "").trim();
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        req.flash("error", "Account not found. Please sign up again.");
+        return res.redirect("/signup");
+    }
+    if (user.emailVerified) {
+        req.flash("success", "Your email is already verified — please log in.");
+        return res.redirect("/login");
+    }
+
+    const result = await checkOtp(user, code);
+    await user.save(); // persist attempt count even on failure
+    if (!result.ok) {
+        req.flash("error", result.reason);
+        return res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+    }
+
+    user.emailVerified = true;
+    user.otpHash = null;
+    user.otpExpires = null;
+    user.otpAttempts = 0;
+    await user.save();
+
+    delete req.session.pendingVerifyEmail;
+    req.flash("success", "Email verified! You can now log in.");
+    res.redirect("/login");
+}));
+
+app.post("/verify-email/resend", verifyToken, wrapAsync(async (req, res) => {
+    const email = (req.body.email || req.session.pendingVerifyEmail || "").toLowerCase().trim();
+    const user = await User.findOne({ email });
+    if (!user) {
+        req.flash("error", "Account not found. Please sign up again.");
+        return res.redirect("/signup");
+    }
+    if (user.emailVerified) {
+        req.flash("success", "Your email is already verified — please log in.");
+        return res.redirect("/login");
+    }
+
+    const wait = resendCooldownRemaining(user);
+    if (wait > 0) {
+        req.flash("error", `Please wait ${wait}s before requesting another code.`);
+        return res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+    }
+
+    const code = await assignOtp(user);
+    await user.save();
+    await sendOtpEmail(user.email, code);
+
+    req.flash("success", "A new code has been sent.");
+    res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+}));
+
+>>>>>>> origin/main
 app.get("/login", (req, res) => {
     res.render("login.ejs");
 });
@@ -526,7 +653,13 @@ app.get("/results", isLoggedIn, wrapAsync(async (req, res) => {
     // voting has actually closed. Admins can always preview live results so
     // they can monitor the count as it happens, and can hold results back
     // even after closing by simply not declaring them.
+<<<<<<< HEAD
    const resultsHidden = !isAdminUser && !election.resultsDeclared;
+=======
+    const resultsHidden = !isAdminUser &&
+        !election.resultsDeclared &&
+        (res.locals.electionStatus === "upcoming" || res.locals.electionStatus === "live");
+>>>>>>> origin/main
 
     if (resultsHidden) {
         return res.render("results-pending", {});

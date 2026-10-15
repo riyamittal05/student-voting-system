@@ -69,6 +69,7 @@
 
                     </div>
 
+<<<<<<< HEAD
                     <!-- ROLL NUMBER: required only when admin has configured the allowlist -->
                     <% if (anyVotersConfigured) { %>
                         <div>
@@ -80,6 +81,24 @@
                     <% } else { %>
                         <p class="text-xs text-subink">Open registration is enabled because the admin has not added an eligible-voter list.</p>
                     <% } %>
+=======
+                    <!-- ROLL NUMBER -->
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-ink">
+
+                            Roll Number
+
+                        </label>
+
+                        <input type="text" name="rollNumber" placeholder="Enter your roll number" required
+                            class="w-full border border-hairline rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy">
+
+                        <p class="text-xs text-subink mt-1">Must match a roll number the election admin has
+                            pre-approved. Each roll number can only be used once.</p>
+
+                    </div>
+>>>>>>> origin/main
 
                     <!-- PASSWORD -->
                     <div>
